@@ -39,12 +39,18 @@ class Blockchain:
 		return proof
 
 	def is_valid_block(self, block: Block, proof: str) -> bool:
-		if self.last_block.hash != block.previous_hash:
+		last_block = self.last_block
+
+		if last_block.index + 1 != block.index:
 			return False
 
-		static_data = block.get_static_data()
+		if last_block.hash != block.previous_hash:
+			return False
 
-		return Blockchain.is_valid_proof(proof) and proof == block.compute_hash(static_data)
+		if not Blockchain.is_valid_proof(proof):
+			return False
+
+		return proof == block.compute_hash(block.get_static_data())
 
 	def add_block(self, block: Block, proof: str) -> bool:
 		if not self.is_valid_block(block, proof):
