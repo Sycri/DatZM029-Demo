@@ -60,7 +60,7 @@ class Blockchain:
 		self.chain.append(block)
 		return True
 
-	def mine(self) -> int:
+	def mine(self) -> int|bool:
 		if not self.pending_transactions:
 			return False
 
