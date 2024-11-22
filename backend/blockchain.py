@@ -38,7 +38,6 @@ class Blockchain:
 
 		return proof
 
-	# Funkcijā is_valid_block() last_block vietā previous_block
 	def is_valid_block(self, block: Block, previous_block: Block, proof: str) -> bool:
 		if previous_block.index + 1 != block.index:
 			return False
@@ -52,8 +51,6 @@ class Blockchain:
 		return proof == block.compute_hash(block.get_static_data())
 
 	def add_block(self, block: Block, proof: str) -> bool:
-		# pirms tam bija - if not self.is_valid_block(block, proof):
-		# mainīts, jo pārveidota is_valid_block() funkcija
 		if not self.is_valid_block(block, self.last_block, proof):
 			return False
 
@@ -78,7 +75,6 @@ class Blockchain:
 		self.pending_transactions = []
 		return new_block.index
 
-	# Blockchain verifikācija
 	def is_valid_chain(self) -> bool:
 		for i in range(1, len(self.chain)):
 			current_block = self.chain[i]
