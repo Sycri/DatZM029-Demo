@@ -1,13 +1,14 @@
 import os
 import json
 import re
+
 from block import Block
 
 class Blockchain:
 	difficulty = 2
 
 	def __init__(self):
-		self.chain = []
+		self.chain: list[Block] = []
 		self.pending_transactions = []
 
 		os.makedirs('data', exist_ok=True)
@@ -46,7 +47,8 @@ class Blockchain:
 
 		return proof
 
-	def is_valid_block(self, block: Block, previous_block: Block, proof: str) -> bool:
+	@staticmethod
+	def is_valid_block(block: Block, previous_block: Block, proof: str) -> bool:
 		if previous_block.index + 1 != block.index:
 			return False
 
@@ -59,7 +61,7 @@ class Blockchain:
 		return proof == block.compute_hash(block.get_static_data())
 
 	def add_block(self, block: Block, proof: str) -> bool:
-		if not self.is_valid_block(block, self.last_block, proof):
+		if not Blockchain.is_valid_block(block, self.last_block, proof):
 			return False
 
 		block.hash = proof
@@ -84,20 +86,31 @@ class Blockchain:
 		self.pending_transactions = []
 		return new_block.index
 
-	def is_valid_chain(self) -> bool:
-		for i in range(1, len(self.chain)):
-			current_block = self.chain[i]
-			previous_block = self.chain[i - 1]
+	@staticmethod
+	def is_valid_chain(chain: list[Block]) -> bool:
+		if not chain:
+			return False
+
+		for i in range(1, len(chain)):
+			current_block = chain[i]
+			previous_block = chain[i - 1]
 
 			proof = current_block.hash
-			if not self.is_valid_block(current_block, previous_block, proof):
+			if not Blockchain.is_valid_block(current_block, previous_block, proof):
 				return False
 
 		return True
-	
+
+	def replace_chain(self, chain: list[Block]):
+		self.chain = chain
+		self.save_to_disk()
+
 	def save_to_disk(self, from_index: int = 0):
 		for block in self.chain[from_index:]:
 			block_file = f'data/block_{block.index}.json'
+
+			if os.path.exists(block_file):
+				os.rename(block_file, block_file + '.old')
 
 			with open(block_file, 'w') as f:
 				json.dump(block.to_dict(), f)
