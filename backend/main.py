@@ -58,7 +58,7 @@ def node_register() -> tuple[Response, int]:
 @app.route('/node/registered', methods=['GET'])
 def node_get_registered() -> tuple[Response, int]:
 	response = {
-		'nodes': [node.to_json_data() for node in network.nodes]
+		'nodes': [node.to_json_format() for node in network.nodes]
 	}
 
 	return jsonify(response), 200

@@ -59,7 +59,7 @@ class Network:
 
 		return resolved
 
-	def from_json_data(self, data: dict):
+	def from_json_format(self, data: dict):
 		self.own_node_id = data['ownNodeID']
 
 		for n in data['nodes']:
@@ -70,10 +70,10 @@ class Network:
 
 			self.nodes.append(node)
 
-	def to_json_data(self) -> dict:
+	def to_json_format(self) -> dict:
 		return {
 			'ownNodeID': self.own_node_id,
-			'nodes': [node.to_json_data() for node in self.nodes]
+			'nodes': [node.to_json_format() for node in self.nodes]
 		}
 
 	def save_to_disk(self):
@@ -81,10 +81,10 @@ class Network:
 			os.rename(self.nodes_file, self.nodes_file + '.old')
 
 		with open(self.nodes_file, 'w') as f:
-			json.dump(self.to_json_data(), f)
+			json.dump(self.to_json_format(), f)
 
 	def load_from_disk(self):
 		self.nodes = []
 
 		with open(self.nodes_file, 'r') as f:
-			self.from_json_data(json.load(f))
+			self.from_json_format(json.load(f))

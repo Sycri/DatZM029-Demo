@@ -37,7 +37,7 @@ class Node:
 		self.node_id = response_json['nodeID']
 		return self.node_id
 
-	def to_json_data(self) -> dict:
+	def to_json_format(self) -> dict:
 		return {
 			'address': self.address,
 			'nodeID': self.node_id,
