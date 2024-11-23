@@ -1,3 +1,5 @@
+import os
+import json
 from block import Block
 
 class Blockchain:
@@ -7,9 +9,12 @@ class Blockchain:
 		self.chain = []
 		self.pending_transactions = []
 
+		os.makedirs('data', exist_ok=True)
 		self.create_genesis_block()
 
 	def create_genesis_block(self):
+		if os.path.exists('data/block_1.json'):
+			self.load_from_disk()  # Load existing chain if it exists
 		genesis_block = Block(0, [], '0')
 		genesis_block.hash = genesis_block.compute_hash(genesis_block.get_static_data())
 		self.chain.append(genesis_block)
@@ -85,3 +90,20 @@ class Blockchain:
 				return False
 
 		return True
+	
+	def save_to_disk(self):
+		for block in self.chain:
+			# block_file = f'data/block_{block.index}.json'
+			block_file = f'data/block_1.json'
+			with open(block_file, 'w') as f:
+				json.dump(block.to_dict(), f)
+
+	def load_from_disk(self):
+		self.chain = []
+		block_files = sorted(os.listdir('data'), key=lambda x: int(x.split('_')[1].split('.')[0]))
+		for block_file in block_files:
+			# with open(f'data/{block_file}', 'r') as f:
+			with open(f'data/block_1.json', 'r') as f:
+				block_data = json.load(f)
+				block = Block.from_dict(block_data) # Getting information from class method called `from_dict` from block.py
+				self.chain.append(block)

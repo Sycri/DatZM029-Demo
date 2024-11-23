@@ -1,0 +1,19 @@
+{
+    "index": 1,
+    "transactions": [
+        {
+            "sender": "Alice",
+            "receiver": "Bob",
+            "amount": 10
+        },
+        {
+            "sender": "Bob",
+            "receiver": "Charlie",
+            "amount": 20
+        }
+    ],
+    "timestamp": 1699999999999999,
+    "previous_hash": "0",
+    "nonce": 352,
+    "hash": "0000abf3c4a73d9f4a9b3b3c5e6b6a2c3c4d5e6f7a8b9c0d1e2f3g4h5i6j7k8l"
+}
