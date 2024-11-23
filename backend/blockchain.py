@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from block import Block
 
 class Blockchain:
@@ -10,14 +11,16 @@ class Blockchain:
 		self.pending_transactions = []
 
 		os.makedirs('data', exist_ok=True)
-		self.create_genesis_block()
+		if os.path.exists('data/block_0.json'):
+			self.load_from_disk() # Load existing chain if it exists
+		else:
+			self.create_genesis_block()
 
 	def create_genesis_block(self):
-		if os.path.exists('data/block_1.json'):
-			self.load_from_disk()  # Load existing chain if it exists
 		genesis_block = Block(0, [], '0')
 		genesis_block.hash = genesis_block.compute_hash(genesis_block.get_static_data())
 		self.chain.append(genesis_block)
+		self.save_to_disk()
 
 	@property
 	def last_block(self) -> Block:
@@ -61,6 +64,7 @@ class Blockchain:
 
 		block.hash = proof
 		self.chain.append(block)
+		self.save_to_disk(block.index)
 		return True
 
 	def mine(self) -> int|bool:
@@ -91,19 +95,26 @@ class Blockchain:
 
 		return True
 	
-	def save_to_disk(self):
-		for block in self.chain:
-			# block_file = f'data/block_{block.index}.json'
-			block_file = f'data/block_1.json'
+	def save_to_disk(self, from_index: int = 0):
+		for block in self.chain[from_index:]:
+			block_file = f'data/block_{block.index}.json'
+
 			with open(block_file, 'w') as f:
 				json.dump(block.to_dict(), f)
 
 	def load_from_disk(self):
 		self.chain = []
-		block_files = sorted(os.listdir('data'), key=lambda x: int(x.split('_')[1].split('.')[0]))
+
+		# Use pattern to match by file name block_<number>.json
+		name_pattern = re.compile(r'^block_(\d+)\.json$')
+
+		# Sort matching files by block number
+		block_files = sorted(
+			[i for i in os.listdir('data') if name_pattern.match(i)], # Get file names that match the pattern
+			key=lambda x: int(x.split('_')[1].split('.')[0]) # Get block number
+		)
+
 		for block_file in block_files:
-			# with open(f'data/{block_file}', 'r') as f:
-			with open(f'data/block_1.json', 'r') as f:
-				block_data = json.load(f)
-				block = Block.from_dict(block_data) # Getting information from class method called `from_dict` from block.py
+			with open(f'data/{block_file}', 'r') as f:
+				block = Block.from_dict(json.load(f))
 				self.chain.append(block)
