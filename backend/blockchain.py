@@ -118,3 +118,28 @@ class Blockchain:
 			with open(f'data/{block_file}', 'r') as f:
 				block = Block.from_dict(json.load(f))
 				self.chain.append(block)
+
+	def register_node(self, address: str):
+		self.nodes.add(address)
+
+	def resolve_conflicts(self, get_chain_from_node: callable) -> bool:
+		longest_chain = self.chain
+		max_length = len(self.chain)
+
+		for node in self.nodes:
+			# Retrieve the chain from the node
+			node_chain = get_chain_from_node(node)
+			if not node_chain:
+				continue
+
+			# Validate the chain and check its length
+			if len(node_chain) > max_length and self.is_valid_chain(node_chain):
+				longest_chain = node_chain
+				max_length = len(node_chain)
+		
+			# Replace the current chain with the longest valid chain, if necessary
+			if longest_chain != self.chain:
+				self.chain = longest_chain
+				return True
+
+		return False
