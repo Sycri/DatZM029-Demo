@@ -2,6 +2,7 @@ import os
 import json
 import re
 
+from transaction.base_transaction import BaseTransaction
 from block import Block
 
 class Blockchain:
@@ -27,8 +28,16 @@ class Blockchain:
 	def last_block(self) -> Block:
 		return self.chain[-1]
 
-	def add_new_transaction(self, transaction):
-		self.pending_transactions.append(transaction)
+	def add_new_transaction(self, tx: BaseTransaction) -> bool:
+		if not tx.validate(self.chain, self.pending_transactions):
+			print(tx.to_dict())
+			return False
+
+		tx.tx_id = tx.generate_tx_id()
+		print(tx.to_dict())
+		self.pending_transactions.append(tx.to_dict())
+
+		return True
 
 	@staticmethod
 	def is_valid_proof(proof: str) -> bool:
