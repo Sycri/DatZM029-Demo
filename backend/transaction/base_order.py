@@ -48,16 +48,16 @@ class BaseOrder(BaseTransaction):
 		}
 
 	def get_order_prev_tx(self, chain: list[Block], pending_transactions: list[BaseTransaction]) -> tuple[dict, int]:
+		for tx in reversed(pending_transactions):
+			# 1 - CreateOrder, 2 - UpdateOrder, 3 - TransferOrder, 4 - CompleteOrder
+			if tx['type'] in [1, 2, 3, 4] and tx['order_code'] == self.order_code:
+				return tx, chain[-1].index + 1
+
 		for block in reversed(chain):
 			for tx in reversed(block.transactions):
 				# 1 - CreateOrder, 2 - UpdateOrder, 3 - TransferOrder, 4 - CompleteOrder
 				if tx['type'] in [1, 2, 3, 4] and tx['order_code'] == self.order_code:
 					return tx, block.index
-
-		for tx in reversed(pending_transactions):
-			# 1 - CreateOrder, 2 - UpdateOrder, 3 - TransferOrder, 4 - CompleteOrder
-			if tx['type'] in [1, 2, 3, 4] and tx['order_code'] == self.order_code:
-				return tx, chain[-1].index + 1
 
 		return None, None
 

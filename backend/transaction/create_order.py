@@ -13,14 +13,14 @@ class CreateOrder(BaseOrder):
 		return str(uuid.uuid4()).replace('-', '').upper()
 
 	def get_org_tx(self, chain: list[Block], pending_transactions: list[BaseTransaction]) -> tuple[str, int]:
+		for tx in reversed(pending_transactions):
+			if tx['type'] == 0 and tx['tx_id'] == self.created_by:
+				return tx['tx_id'], chain[-1].index + 1
+
 		for block in reversed(chain):
 			for tx in reversed(block.transactions):
 				if tx['type'] == 0 and tx['tx_id'] == self.created_by:
 					return tx['tx_id'], block.index
-
-		for tx in reversed(pending_transactions):
-			if tx['type'] == 0 and tx['tx_id'] == self.created_by:
-				return tx['tx_id'], chain[-1].index + 1
 
 		return None, None
 
