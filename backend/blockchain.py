@@ -30,11 +30,9 @@ class Blockchain:
 
 	def add_new_transaction(self, tx: BaseTransaction) -> bool:
 		if not tx.validate(self.chain, self.pending_transactions):
-			print(tx.to_dict())
 			return False
 
 		tx.tx_id = tx.generate_tx_id()
-		print(tx.to_dict())
 		self.pending_transactions.append(tx.to_dict())
 
 		return True
