@@ -37,6 +37,49 @@ class Blockchain:
 
 		return True
 
+	def get_order_all_transactions(self, order_code: str) -> list[dict]:
+		tx_list = []
+
+		# 1 - CreateOrder, 2 - UpdateOrder, 3 - TransferOrder, 4 - CompleteOrder
+
+		# Find first transaction with the given order code
+		for tx in reversed(self.pending_transactions):
+			if tx['type'] in [1, 2, 3, 4] and tx['order_code'] == order_code:
+				tx_list.append(tx)
+				break
+
+		if tx_list:
+			# If found in pending transactions, check if there are any more
+			for tx in reversed(self.pending_transactions):
+				if tx['type'] in [1, 2, 3, 4] and tx['tx_id'] == tx_list[-1]['prev_tx_id']:
+					tx_list.append(tx)
+		else:
+			for block in reversed(self.chain):
+				for tx in reversed(block.transactions):
+					if tx['type'] in [1, 2, 3, 4] and tx['order_code'] == order_code:
+						tx_list.append(tx)
+						break
+		
+		if not tx_list:
+			return []
+
+		# Find any remaining transactions by using prev_tx_block_id and prev_tx_id
+		last_tx = tx_list[-1]
+		found_tx = True
+		while 'prev_tx_block_id' in last_tx and last_tx['prev_tx_block_id'] and found_tx:
+			found_block = self.chain[last_tx['prev_tx_block_id']]
+			found_tx = False
+
+			# Find transaction with the given prev_tx_id in the found block
+			for tx in reversed(found_block.transactions):
+				if tx['type'] in [1, 2, 3, 4] and tx['tx_id'] == last_tx['prev_tx_id']:
+					tx_list.append(tx)
+					last_tx = tx
+					found_tx = True
+					break
+
+		return tx_list
+
 	@staticmethod
 	def is_valid_proof(proof: str) -> bool:
 		return proof.startswith('0' * Blockchain.difficulty)

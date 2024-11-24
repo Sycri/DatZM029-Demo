@@ -98,12 +98,17 @@ def node_resolve_conflicts() -> tuple[Response, int]:
 
 	return jsonify({'message': 'Chain not resolved'}), 409
 
-@app.route('/order/{order_code}', methods=['GET'])
+@app.route('/order/<order_code>', methods=['GET'])
 def order_check(order_code: str) -> tuple[Response, int]:
 	if not order_code:
 		return jsonify({'message': 'Order code is missing'}), 400
 
-	return jsonify({ 'data': blockchain.last_block.transactions }), 200
+	data = blockchain.get_order_all_transactions(order_code)
+
+	if not data:
+		return jsonify({'message': 'Order not found'}), 404
+
+	return jsonify(data), 200
 
 @app.route('/order/new', methods=['POST'])
 def order_new() -> tuple[Response, int]:
