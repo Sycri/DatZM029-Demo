@@ -48,11 +48,11 @@ class Blockchain:
 		return proof
 
 	@staticmethod
-	def is_valid_block(block: Block, previous_block: Block, proof: str) -> bool:
-		if previous_block.index + 1 != block.index:
+	def is_valid_block(block: Block, prev_block: Block, proof: str) -> bool:
+		if prev_block.index + 1 != block.index:
 			return False
 
-		if previous_block.hash != block.previous_hash:
+		if prev_block.hash != block.prev_hash:
 			return False
 
 		if not Blockchain.is_valid_proof(proof):
@@ -77,7 +77,7 @@ class Blockchain:
 		new_block = Block(
 			index=last_block.index + 1,
 			transactions=self.pending_transactions,
-			previous_hash=last_block.hash
+			prev_hash=last_block.hash
 		)
 
 		proof = self.proof_of_work(new_block)
@@ -93,10 +93,10 @@ class Blockchain:
 
 		for i in range(1, len(chain)):
 			current_block = chain[i]
-			previous_block = chain[i - 1]
+			prev_block = chain[i - 1]
 
 			proof = current_block.hash
-			if not Blockchain.is_valid_block(current_block, previous_block, proof):
+			if not Blockchain.is_valid_block(current_block, prev_block, proof):
 				return False
 
 		return True

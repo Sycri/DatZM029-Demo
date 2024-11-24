@@ -3,10 +3,10 @@ import json
 import time
 
 class Block:
-	def __init__(self, index: int, transactions: list, previous_hash: str, timestamp: int = None, nonce: int = 0):
+	def __init__(self, index: int, transactions: list, prev_hash: str, timestamp: int = None, nonce: int = 0):
 		self.index = index
 		self.transactions = transactions
-		self.previous_hash = previous_hash
+		self.prev_hash = prev_hash
 		self.timestamp = timestamp or time.time_ns()
 		self.nonce = nonce
 
@@ -14,7 +14,7 @@ class Block:
 		return json.dumps({
 			'index': self.index,
 			'transactions': self.transactions,
-			'previous_hash': self.previous_hash,
+			'prev_hash': self.prev_hash,
 			'timestamp': self.timestamp
 		}, sort_keys=True)
 
@@ -26,7 +26,7 @@ class Block:
 		return {
 			'index': self.index,
 			'transactions': self.transactions,
-			'previous_hash': self.previous_hash,
+			'prev_hash': self.prev_hash,
 			'timestamp': self.timestamp,
 			'nonce': self.nonce,
 			'hash': self.hash
@@ -37,7 +37,7 @@ class Block:
 		block = Block(
 			index=data['index'],
 			transactions=data['transactions'],
-			previous_hash=data['previous_hash'],
+			prev_hash=data['prev_hash'],
 			timestamp=data['timestamp'],
 			nonce=data['nonce']
 		)
