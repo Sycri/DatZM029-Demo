@@ -20,7 +20,7 @@ blockchain = Blockchain()
 network = Network()
 
 def check_missing_fields(data: dict, required_fields: list[str]) -> str:
-	missing_fields = [f'"{field}"' for field in required_fields if field not in data]
+	missing_fields = [field for field in required_fields if field not in data]
 
 	if missing_fields:
 		return 'Missing fields: ' + ', '.join(missing_fields)
@@ -139,7 +139,7 @@ def order_update() -> tuple[Response, int]:
 def order_transfer() -> tuple[Response, int]:
 	data = request.get_json()
 
-	message = check_missing_fields(data, ['createdBy', 'data', 'orderCode' 'newOwner'])
+	message = check_missing_fields(data, ['createdBy', 'data', 'orderCode', 'newOwner'])
 	if message:
 		return jsonify({'message': message}), 400
 
