@@ -75,5 +75,120 @@ def node_resolve_conflicts() -> tuple[Response, int]:
 
 	return jsonify({'message': 'Chain not resolved'}), 409
 
+@app.route('/mine', methods=['POST'])
+def mine()  -> tuple[Response, int]:
+	block_index = blockchain.mine()
+
+	if not block_index:
+		return jsonify({'message': 'No transactions to mine'}), 400
+
+	mined_block = blockchain.chain[-1]
+	response = {
+		'message': 'Block mined successfully!',
+		'block': mined_block.to_dict(),
+		'pending_transactions_cleared': True
+	}
+	return jsonify(response), 200
+
+@app.route('/order', methods=['POST'])
+def order() -> tuple[Response, int]:
+
+    data = request.get_json()
+    print("Received order data:", data)
+
+    response = {
+        'message': 'Order request received.',
+        'data_received': data
+    }
+    return jsonify(response), 200
+
+@app.route('/order/check', methods=['POST'])
+def order_check() -> tuple[Response, int]:
+
+    data = request.get_json()
+
+    if 'order_id' not in data:
+        return jsonify({'message': 'Order ID is missing'}), 400
+
+    response = {
+        'message': 'Order check request received.',
+        'order_id': data['order_id'],
+        'status': 'Pending'
+    }
+    return jsonify(response), 200
+
+@app.route('/order/new', methods=['POST'])
+def order_new() -> tuple[Response, int]:
+
+    data = request.get_json()
+
+    blockchain.add_new_transaction(data)
+
+    response = {
+        'message': 'New order transaction created.',
+        'transaction': data
+    }
+    return jsonify(response), 200
+
+@app.route('/order/update', methods=['POST'])
+def order_update() -> tuple[Response, int]:
+
+    data = request.get_json()
+
+    if 'order_id' not in data or 'updates' not in data:
+        return jsonify({'message': 'Order ID or update fields are missing'}), 400
+
+    response = {
+        'message': 'Order update request received.',
+        'order_id': data['order_id'],
+        'updates': data['updates']
+    }
+    return jsonify(response), 200
+
+@app.route('/order/transfer', methods=['POST'])
+def order_transfer() -> tuple[Response, int]:
+
+    data = request.get_json()
+
+    required_fields = ['order_id', 'new_receiver']
+    if not all(field in data for field in required_fields):
+        return jsonify({'message': 'Missing fields in transfer data'}), 400
+
+    response = {
+        'message': 'Order transfer request received.',
+        'order_id': data['order_id'],
+        'new_receiver': data['new_receiver']
+    }
+    return jsonify(response), 200
+
+@app.route('/order/complete', methods=['POST'])
+def order_complete() -> tuple[Response, int]:
+
+    data = request.get_json()
+
+    if 'order_id' not in data:
+        return jsonify({'message': 'Order ID is missing'}), 400
+
+    response = {
+        'message': 'Order complete request received.',
+        'order_id': data['order_id']
+    }
+    return jsonify(response), 200
+
+@app.route('/organization/create', methods=['POST'])
+def organization_create() -> tuple[Response, int]:
+
+    data = request.get_json()
+
+    required_fields = ['organization_name', 'details']
+    if not all(field in data for field in required_fields):
+        return jsonify({'message': 'Missing fields in organization data'}), 400
+
+    response = {
+        'message': 'Organization creation request received.',
+        'organization_data': data
+    }
+    return jsonify(response), 200
+
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=port)
