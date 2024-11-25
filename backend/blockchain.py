@@ -160,7 +160,7 @@ class Blockchain:
 			block_file = f'data/block_{block.index}.json'
 
 			if os.path.exists(block_file):
-				os.rename(block_file, block_file + '.old')
+				os.replace(block_file, block_file + '.old')
 
 			with open(block_file, 'w') as f:
 				json.dump(block.to_dict(), f)

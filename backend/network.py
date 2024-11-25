@@ -78,7 +78,7 @@ class Network:
 
 	def save_to_disk(self):
 		if os.path.exists(self.nodes_file):
-			os.rename(self.nodes_file, self.nodes_file + '.old')
+			os.replace(self.nodes_file, self.nodes_file + '.old')
 
 		with open(self.nodes_file, 'w') as f:
 			json.dump(self.to_json_format(), f)
